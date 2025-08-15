@@ -1,0 +1,81 @@
+
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fortnite Party Dashboard v3</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+html,body{background:radial-gradient(circle at 20% 10%, rgba(76,29,149,0.6), #030712); min-height:100%;}
+.glass{backdrop-filter:blur(10px); background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12); transition:all 0.2s;}
+.card{transition:transform 0.15s ease, box-shadow 0.15s ease;}
+.card:hover{transform:translateY(-3px); box-shadow:0 10px 25px rgba(0,0,0,0.35);}
+.leader-badge{filter:drop-shadow(0 0 8px rgba(255,215,0,.8)); animation:pulse 2s infinite;}
+@keyframes pulse{0%{opacity:1}50%{opacity:.5}100%{opacity:1}}
+</style>
+</head>
+<body class="text-white">
+<div class="max-w-7xl mx-auto p-4 md:p-8">
+<header class="flex items-center justify-between mb-6">
+<h1 class="text-3xl md:text-4xl font-extrabold tracking-tight">Fortnite Party Dashboard v3</h1>
+</header>
+<section class="grid md:grid-cols-3 gap-6 mb-8">
+<div class="glass rounded-xl p-5 card">
+<h2 class="text-xl font-semibold mb-3">Custom Status</h2>
+<form id="presenceForm" class="space-y-3">
+<input id="status" type="text" placeholder="Custom status e.g. Grinding Arena" class="w-full px-3 py-2 rounded bg-black/40 border border-white/20 outline-none focus:ring"/>
+<input id="statusMessage" type="text" placeholder="Optional message" class="w-full px-3 py-2 rounded bg-black/40 border border-white/20 outline-none focus:ring"/>
+<select id="platform" class="w-full px-3 py-2 rounded bg-black/40 border border-white/20 outline-none focus:ring">
+<option value="">Platform (leave blank to keep current)</option>
+<option value="WIN">PC</option>
+<option value="PS5">PS5</option>
+<option value="XSX">Xbox</option>
+<option value="SWITCH">Switch</option>
+</select>
+<label class="inline-flex items-center space-x-2 text-sm opacity-90">
+<input id="isPlaying" type="checkbox" class="rounded bg-black/40 border-white/20"><span>Mark as playing</span>
+</label>
+<button type="submit" class="px-4 py-2 rounded bg-white/10 hover:bg-white/20 transition">Update Status</button>
+<div id="presenceResult" class="text-xs opacity-80"></div>
+</form>
+</div>
+<div class="glass rounded-xl p-5 md:col-span-2 card">
+<div class="flex items-center justify-between mb-3">
+<h2 class="text-xl font-semibold">Party Now</h2>
+<button id="refreshBtn" class="text-xs px-3 py-1 rounded bg-white/10 hover:bg-white/20 transition">Refresh</button>
+</div>
+<div id="partyMeta" class="text-sm opacity-90 mb-3"></div>
+<div id="members" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-3"></div>
+</div>
+</section>
+<script>
+const $=(s)=>document.querySelector(s);
+async function loadParty(){
+  const res=await fetch('/api/party');const party=await res.json();
+  const since=new Date((party.since||0)*1000).toLocaleTimeString();
+  $('#partyMeta').innerHTML=`Party ID: ${party.partyId} • Leader: ${party.leaderId} • Privacy: ${party.privacy||'-'} • Mode: ${party.mode||'-'} • Since: ${since}`;
+  $('#members').innerHTML=(party.members||[]).map(m=>{
+    const pres=m.presence||{};
+    return `<div class="rounded-lg p-4 bg-white/5 border border-white/10 card">
+<div class="flex items-center justify-between mb-2"><div class="font-semibold">${m.role==='LEADER'?'<span class="leader-badge">👑</span>':''}${m.displayName}</div><div class="text-sm opacity-80">${pres.platform||'❔'}</div></div>
+<div class="flex gap-2 mb-2"><span class="tag px-2 py-0.5 rounded text-xs">${pres.status||'-'}</span></div>
+<div class="text-xs opacity-80">Msg: ${pres.message||'-'} | Skin: ${m.skin} | Pickaxe: ${m.pickaxe} | Backbling: ${m.backbling}</div></div>`;
+  }).join('');
+}
+$('#refreshBtn').addEventListener('click',loadParty);
+$('#presenceForm').addEventListener('submit',async e=>{
+  e.preventDefault();
+  const status=$('#status').value;
+  const msg=$('#statusMessage').value;
+  const isPlaying=$('#isPlaying').checked;
+  const platform=$('#platform').value||undefined;
+  const res=await fetch('/api/presence/set',{method:'POST',body:new URLSearchParams({status,statusMessage:msg,isPlaying,platform})});
+  const data=await res.json();
+  $('#presenceResult').textContent='Status updated!';
+  loadParty();
+});
+document.addEventListener('DOMContentLoaded',()=>{loadParty();setInterval(loadParty,5000);});
+</script>
+</body>
+</html>
