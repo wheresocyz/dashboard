@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard - Bricked Weenie</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="dashboard">
+  <h1>Welcome, Bricked Weenie</h1>
+  <p>Level: 1</p>
+
+  <div class="status-section">
+    <h2>Custom Status</h2>
+    <input type="text" id="status-msg" placeholder="Set a status...">
+    <button id="set-status">Update</button>
+    <p>Current status: <span id="current-status">None</span></p>
+  </div>
+
+  <div class="items-section">
+    <h2>Your Items</h2>
+    <ul id="items-list"></ul>
+  </div>
+
+  <div class="party-section">
+    <h2>Party Members</h2>
+    <ul id="party-list"></ul>
+  </div>
+</div>
+<script src="script.js"></script>
+</body>
+</html>
