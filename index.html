@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fortnite Dashboard - Login</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="login-container">
+  <h1>Fortnite Dashboard</h1>
+  <form id="login-form">
+    <input type="text" placeholder="Username" required value="Bricked Weenie">
+    <button type="submit">Login</button>
+  </form>
+</div>
+<script>
+document.getElementById("login-form").addEventListener("submit", e => {
+  e.preventDefault();
+  window.location.href = "dashboard.html";
+});
+</script>
+</body>
+</html>
